@@ -10,7 +10,7 @@ description:    Yet another telegram bot written in haskell
 homepage:       https://github.com/realglebivanov/haskell-telegram-bot#readme
 bug-reports:    https://github.com/realglebivanov/haskell-telegram-bot/issues
 author:         Gleb Ivanov
-maintainer:     example@example.com
+maintainer:     reaglebivanov@yandex.ru
 copyright:      2022 Gleb Ivanov
 license:        BSD3
 build-type:     Simple
@@ -24,7 +24,7 @@ library
       Bot
       Bot.ActionBuilder
       Bot.CommandParser
-      Bot.ReplyBuilder
+      Bot.Reply
       Models.Action
       Models.Book
       Models.Command
@@ -58,6 +58,35 @@ library
 executable haskell-telegram-bot-exe
   main-is: Main.hs
   other-modules:
+      Migration
+      Paths_haskell_telegram_bot
+  hs-source-dirs:
+      app
+  default-extensions:
+      OverloadedStrings
+      DataKinds
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , either
+    , fmt
+    , haskell-telegram-bot
+    , monad-logger >=0.3
+    , mtl
+    , parsec
+    , persistent
+    , persistent-postgresql
+    , regex-compat
+    , telegram-bot-simple
+    , text
+    , transformers
+    , unliftio-core
+  default-language: Haskell2010
+
+executable haskell-telegram-bot-migrations
+  main-is: Migration.hs
+  other-modules:
+      Main
       Paths_haskell_telegram_bot
   hs-source-dirs:
       app

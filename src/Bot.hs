@@ -3,7 +3,7 @@
 module Bot where
 
 import qualified Bot.ActionBuilder as ActionBuilder
-import qualified Bot.ReplyBuilder as ReplyBuilder
+import qualified Bot.Reply as Reply
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.IO.Unlift (MonadIO (liftIO))
 import Control.Monad.Logger (MonadLogger, MonadLoggerIO)
@@ -16,8 +16,10 @@ import Telegram.Bot.Simple
   ( BotApp (..),
     BotM (..),
     Eff,
+    editUpdateMessage,
     getEnvToken,
     reply,
+    replyOrEdit,
     replyText,
     startBot_,
     (<#),
@@ -44,13 +46,11 @@ handleUpdate update model = parseUpdate (mkParser ActionBuilder.buildAction) upd
 buildHandleAction :: HandleCommand -> Action.Action -> Model -> Eff Action.Action Model
 buildHandleAction _handleCommand Action.NoAction model = pure model
 buildHandleAction _handleCommand Action.InvalidCommand model =
-  model <# do
-    reply ReplyBuilder.buildInvalidCommandReply
-    pure Action.NoAction
+  model <# Reply.sendInvalidCommandReply
 buildHandleAction handleCommand Action.Command {..} model =
   model <# do
     result <- liftIO $ handleCommand user command
-    reply $ ReplyBuilder.buildReply result
+    Reply.send user result
 
 run :: HandleCommand -> IO ()
 run handleCommand = do

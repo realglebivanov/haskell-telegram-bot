@@ -1,0 +1,35 @@
+version: '3.5'
+
+services:
+  migrations:
+    build: .
+    command: stack exec haskell-telegram-bot-migrations
+    working_dir: /app
+  main:
+    dns: 8.8.8.8
+    build: .
+    command: stack exec haskell-telegram-bot-exe
+    working_dir: /app
+    environment:
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_USER: postgres
+      PG_PASSWORD: postgres
+      PG_DATABASE: postgres
+      TELEGRAM_BOT_TOKEN: $TELEGRAM_BOT_TOKEN
+    depends_on:
+      - postgres
+    networks:
+      - haskell-telegram-bot
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      haskell-telegram-bot:
+        aliases:
+        - postgres
+networks:
+  haskell-telegram-bot:
+    external: false
