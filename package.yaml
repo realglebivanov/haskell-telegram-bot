@@ -1,0 +1,52 @@
+name:                haskell-telegram-bot
+version:             0.1.0.0
+github:              "realglebivanov/haskell-telegram-bot"
+license:             BSD3
+author:              "Gleb Ivanov"
+maintainer:          "example@example.com"
+copyright:           "2022 Gleb Ivanov"
+description:         Yet another telegram bot written in haskell
+
+dependencies:
+- base >= 4.7 && < 5
+- telegram-bot-simple
+- text
+- persistent-postgresql
+- persistent
+- fmt
+- mtl
+- unliftio-core 
+- monad-logger >= 0.3
+- transformers
+- parsec
+- regex-compat
+- either
+
+library:
+  source-dirs: src
+
+default-extensions:
+  - OverloadedStrings
+  - DataKinds
+
+executables:
+  haskell-telegram-bot-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - haskell-telegram-bot
+
+tests:
+  haskell-telegram-bot-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - haskell-telegram-bot
