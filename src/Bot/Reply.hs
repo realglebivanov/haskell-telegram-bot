@@ -4,7 +4,6 @@ module Bot.Reply where
 
 import qualified Data.Text as T
 import Database.Persist
-import Database.Persist.Postgresql (toSqlKey)
 import Fmt
 import qualified Models.Action as Action
 import qualified Models.Book as Book
@@ -21,21 +20,19 @@ send user (Result.List []) = do
   replyText "No books yet"
   pure Action.NoAction
 send user (Result.List books) = do
-  replyText "DAAnG"
   replyOrEdit $ buildEditMessage "Books: " (map ((: []) . buildShowButton user) books)
   pure Action.NoAction
-send user (Result.Show Nothing) = do
+send user (Result.Show _ Nothing) = do
   replyText "Couldn't find the book"
-  replyOrEdit $ buildEditMessage "" [[backToListButton user]]
+  replyOrEdit $ buildEditMessage "Actions: " [[backToListButton user]]
   pure Action.NoAction
-send user (Result.Show (Just book)) = do
+send user (Result.Show key (Just book)) = do
   replyText $ buildBookDescription book
-  replyOrEdit $ buildEditMessage "" [[deleteButton user book]]
-  replyOrEdit $ buildEditMessage "" [[backToListButton user]]
+  replyOrEdit $ buildEditMessage "Actions: " [[deleteButton user key], [backToListButton user]]
   pure Action.NoAction
 send user (Result.Delete _key) = do
   replyText "Book successfully deleted"
-  replyOrEdit $ buildEditMessage "" [[backToListButton user]]
+  replyOrEdit $ buildEditMessage "Actions: " [[backToListButton user]]
   pure Action.NoAction
 send _user (Result.Create book) = pure Action.NoAction
 send _user (Result.Update book) = pure Action.NoAction
@@ -48,16 +45,16 @@ buildEditMessage text buttons =
             Telegram.InlineKeyboardMarkup buttons
     }
 
-deleteButton user book =
-  actionButton "Delete" (Action.Command user (Command.Delete $ toSqlKey 1))
+deleteButton user key =
+  actionButton "Delete" (Action.Command user (Command.Delete key))
 
 backToListButton user =
   actionButton "Back" (Action.Command {user = user, command = Command.List})
 
-buildShowButton user book@Book.Book {..} =
+buildShowButton user book =
   actionButton
-    (buildBookDescription book)
-    Action.Command {user = user, command = Command.Show $ toSqlKey 1}
+    (buildBookDescription (entityVal book))
+    Action.Command {user = user, command = Command.Show $ entityKey book}
 
 buildBookDescription Book.Book {..} =
-  "Author: " +| bookAuthor |+ "Name: " +| bookName |+ ""
+  "Author: " +| bookAuthor |+ " Name: " +| bookName |+ ""

@@ -25,8 +25,8 @@ listRecords ::
   (PersistEntity a, PersistEntityBackend a ~ SqlBackend) =>
   [Filter a] ->
   [SelectOpt a] ->
-  IO [a]
-listRecords filters selectOpts = map entityVal <$> exec (selectList filters selectOpts)
+  IO [Entity a]
+listRecords filters selectOpts = exec (selectList filters selectOpts)
 
 getRecord key = exec $ get key
 

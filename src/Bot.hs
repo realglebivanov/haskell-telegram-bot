@@ -45,7 +45,7 @@ handleUpdate update model = parseUpdate (mkParser ActionBuilder.buildAction) upd
 
 buildHandleAction :: HandleCommand -> Action.Action -> Model -> Eff Action.Action Model
 buildHandleAction _handleCommand Action.NoAction model = pure model
-buildHandleAction _handleCommand Action.InvalidCommand model =
+buildHandleAction _handleCommand (Action.InvalidCommand _errorText) model =
   model <# Reply.sendInvalidCommandReply
 buildHandleAction handleCommand Action.Command {..} model =
   model <# do

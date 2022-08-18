@@ -2,38 +2,38 @@
 
 module Bot.CommandParser where
 
-import Data.Text
-import Data.Text.Read
+import qualified Data.Text as T
+import Data.Text.Read (decimal)
 import Database.Persist.Class.PersistEntity (Key)
 import Database.Persist.Postgresql (toSqlKey)
 import Models.Book
 import Models.Command
 
-parseCommand :: Text -> Maybe Command
-parseCommand text = buildCommand $ splitOn " " text
+parseCommand :: T.Text -> Either T.Text Command
+parseCommand text = buildCommand $ T.splitOn " " text
 
-buildCommand :: [Text] -> Maybe Command
-buildCommand ["/list"] = Just List
+buildCommand :: [T.Text] -> Either T.Text Command
+buildCommand ["/list"] = Right List
 buildCommand ["/show", id] = Show <$> buildKey id
 buildCommand ["/delete", id] = Delete <$> buildKey id
 buildCommand ["/create", author, name] =
-  Just
+  Right
     Create
       { Models.Command.author = author,
         Models.Command.name = name
       }
 buildCommand ["/update", id, author, name] =
   buildKey id >>= \key ->
-    Just
+    Right
       Update
         { Models.Command.key = key,
           Models.Command.newAuthor = author,
           Models.Command.newName = name
         }
-buildCommand _ = Nothing
+buildCommand text = Left $ T.unlines text
 
-buildKey :: Text -> Maybe (Key Book)
+buildKey :: T.Text -> Either T.Text (Key Book)
 buildKey id = extractId $ decimal id
   where
-    extractId (Right (id, "")) = Just $ toSqlKey id
-    extractId _ = Nothing
+    extractId (Right (id, "")) = Right $ toSqlKey id
+    extractId _ = Left $ T.unlines ["Failed to parse id ", id]

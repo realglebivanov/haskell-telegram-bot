@@ -15,7 +15,7 @@ main :: IO ()
 main = Bot.run handleCommand
   where
     handleCommand User.User {} (Command.Show key) =
-      Result.Show <$> Repository.getRecord key
+      Result.Show key <$> Repository.getRecord key
     handleCommand User.User {id = userId} Command.List =
       Result.List
         <$> Repository.listRecords
