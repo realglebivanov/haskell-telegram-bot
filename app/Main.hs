@@ -4,7 +4,7 @@ module Main where
 
 import qualified Bot
 import Data.Text (unpack)
-import Database.Persist.Class.PersistEntity (Entity, entityVal)
+import Database.Persist (Update (Update), (=.), (==.))
 import qualified Models.Book as Book
 import qualified Models.Command as Command
 import qualified Models.Command.Result as Result
@@ -16,12 +16,28 @@ main = Bot.run handleCommand
   where
     handleCommand User.User {} (Command.Show key) =
       Result.Show <$> Repository.getRecord key
-    handleCommand User.User {} Command.List =
-      Result.List <$> Repository.listRecords [] []
-    handleCommand User.User {} (Command.Delete key) =
-      Repository.deleteRecord key >> pure (Result.Delete key)
-    handleCommand User.User {} (Command.Update {..}) =
-      Result.Update <$> Repository.updateRecord key []
+    handleCommand User.User {id = userId} Command.List =
+      Result.List
+        <$> Repository.listRecords
+          [Book.BookUserId ==. fromIntegral userId]
+          []
+    handleCommand User.User {id = userId} (Command.Delete key) =
+      Repository.deleteRecords
+        [ Book.BookId ==. key,
+          Book.BookUserId ==. fromIntegral userId
+        ]
+        >> pure (Result.Delete key)
+    handleCommand User.User {id = userId} (Command.Update {..}) =
+      Result.Update
+        <$> ( Repository.updateRecords
+                [ Book.BookId ==. key,
+                  Book.BookUserId ==. fromIntegral userId
+                ]
+                [ Book.BookAuthor =. unpack newAuthor,
+                  Book.BookName =. unpack newName
+                ]
+                >> Repository.getRecord key
+            )
     handleCommand User.User {id = userId} (Command.Create {..}) =
       Repository.insertRecord book >> pure (Result.Create book)
       where

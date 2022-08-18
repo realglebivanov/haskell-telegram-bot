@@ -16,9 +16,15 @@ buildCommand :: [Text] -> Maybe Command
 buildCommand ["/list"] = Just List
 buildCommand ["/show", id] = Show <$> buildKey id
 buildCommand ["/delete", id] = Delete <$> buildKey id
+buildCommand ["/create", author, name] =
+  Just
+    Create
+      { Models.Command.author = author,
+        Models.Command.name = name
+      }
 buildCommand ["/update", id, author, name] =
   buildKey id >>= \key ->
-    Just $
+    Just
       Update
         { Models.Command.key = key,
           Models.Command.newAuthor = author,

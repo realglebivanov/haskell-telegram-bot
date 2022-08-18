@@ -1,5 +1,6 @@
-module Migration where
+module Main where
 
+import Database.Persist.Postgresql (runMigration)
 import Models.Book
 import Repository
 

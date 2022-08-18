@@ -7,16 +7,18 @@ import Control.Monad.IO.Unlift (MonadUnliftIO, unliftIO)
 import Control.Monad.Logger (MonadLoggerIO, runStdoutLoggingT)
 import Control.Monad.Reader (join, runReaderT)
 import Control.Monad.Trans.Reader (ReaderT (runReaderT))
+import Database.Persist.Class (deleteWhere, updateWhere)
 import Database.Persist.Class.PersistEntity (Entity (entityVal), Filter, Key, PersistEntity (PersistEntityBackend), SelectOpt, Update)
 import Database.Persist.Postgresql
   ( ConnectionString,
     PersistStoreRead (get),
-    PersistStoreWrite (delete, insert, updateGet),
+    PersistStoreWrite (insert),
     selectList,
     withPostgresqlConn,
   )
 import Database.Persist.SqlBackend.Internal (SqlBackend)
 import Fmt ((+|), (|+))
+import Models.Book
 import System.Environment (getEnv)
 
 listRecords ::
@@ -30,9 +32,9 @@ getRecord key = exec $ get key
 
 insertRecord record = exec $ insert record
 
-deleteRecord key = exec $ delete key
+deleteRecords filters = exec $ deleteWhere filters
 
-updateRecord key updates = exec $ updateGet key updates
+updateRecords filters updates = exec $ updateWhere filters updates
 
 exec action = do
   connectionString <- buildConnectionString
@@ -46,4 +48,4 @@ buildConnectionString =
     user <- getEnv "PG_USER"
     password <- getEnv "PG_PASSWORD"
     database <- getEnv "PG_DATABASE"
-    return $ "host=" +| host |+ "port=" +| port |+ " user=" +| user |+ " dbname=" +| database |+ " password=" +| password |+ ""
+    return $ "host=" +| host |+ " port=" +| port |+ " user=" +| user |+ " dbname=" +| database |+ " password=" +| password |+ ""

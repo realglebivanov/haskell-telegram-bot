@@ -17,7 +17,11 @@ sendInvalidCommandReply = do
   replyText "Invalid command given"
   pure Action.NoAction
 
+send user (Result.List []) = do
+  replyText "No books yet"
+  pure Action.NoAction
 send user (Result.List books) = do
+  replyText "DAAnG"
   replyOrEdit $ buildEditMessage "Books: " (map ((: []) . buildShowButton user) books)
   pure Action.NoAction
 send user (Result.Show Nothing) = do
@@ -55,4 +59,5 @@ buildShowButton user book@Book.Book {..} =
     (buildBookDescription book)
     Action.Command {user = user, command = Command.Show $ toSqlKey 1}
 
-buildBookDescription Book.Book {..} = "Author: " +| bookAuthor |+ "Name: " +| bookName |+ ""
+buildBookDescription Book.Book {..} =
+  "Author: " +| bookAuthor |+ "Name: " +| bookName |+ ""

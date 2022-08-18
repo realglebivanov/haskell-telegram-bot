@@ -9,4 +9,4 @@ data Result
   | List [Book]
   | Delete (Key Book)
   | Create Book
-  | Update Book
+  | Update (Maybe Book)
