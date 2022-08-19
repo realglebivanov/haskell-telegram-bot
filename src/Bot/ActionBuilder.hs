@@ -21,9 +21,15 @@ buildAction' (Just User {userId = (UserId userId), userUsername = (Just userName
 buildAction' _ (Left parseError) = Just . Action.InvalidCommand $ parseError
 buildAction' _ (Right command) = Just . Action.InvalidCommand . pack . show $ command
 
-parseCommand update = parseCommand' $ (Telegram.extractUpdateMessage >=> messageText) update
-  where
-    parseCommand' (Just messageText) = CommandParser.parseCommand messageText
-    parseCommand' Nothing = Left "Failed to parse message"
-
 getUserInfo = Telegram.extractUpdateMessage >=> messageFrom
+
+parseCommand update = parseCommand' $ firstJust callbackQueryData' messageText'
+  where
+    parseCommand' (Just command) = CommandParser.parseCommand command
+    parseCommand' _ = Left "Failed to parse message"
+    callbackQueryData' = (Telegram.updateCallbackQuery >=> callbackQueryData) update
+    messageText' = (Telegram.extractUpdateMessage >=> messageText) update
+
+firstJust just@(Just _) _ = just
+firstJust _ just@(Just _) = just
+firstJust _ _ = Nothing

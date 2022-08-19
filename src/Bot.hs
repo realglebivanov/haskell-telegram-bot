@@ -60,8 +60,7 @@ buildHandleAction handleCommand Action.Command {..} state =
   runAction $ StateMachine.transition state user command
   where
     runAction (Just (newState, oldUserState, newUserState)) =
-      newState <# do
-        runAction' (BotCommand.buildCommand oldUserState newUserState command) newUserState
+      newState <# runAction' (BotCommand.buildCommand oldUserState newUserState command) newUserState
     runAction Nothing = state <# Reply.sendInvalidCommandReply
     runAction' (Just command) _ = do
       result <- liftIO $ handleCommand user command
