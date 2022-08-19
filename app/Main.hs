@@ -4,7 +4,7 @@ module Main where
 
 import qualified Bot
 import Data.Text (unpack)
-import Database.Persist (Update (Update), (=.), (==.))
+import Database.Persist (SelectOpt (..), Update (Update), (=.), (==.))
 import qualified Models.Book as Book
 import qualified Models.Command as Command
 import qualified Models.Command.Result as Result
@@ -20,7 +20,7 @@ main = Bot.run handleCommand
       Result.List
         <$> Repository.listRecords
           [Book.BookUserId ==. fromIntegral userId]
-          []
+          [Asc Book.BookAuthor, Asc Book.BookName]
     handleCommand User.User {id = userId} (Command.Delete key) =
       Repository.deleteRecords
         [ Book.BookId ==. key,
