@@ -24,6 +24,6 @@ buildAction' _ (Right command) = Just . Action.InvalidCommand . pack . show $ co
 parseCommand update = parseCommand' $ (Telegram.extractUpdateMessage >=> messageText) update
   where
     parseCommand' (Just messageText) = CommandParser.parseCommand messageText
-    parseCommand' Nothing = Left ""
+    parseCommand' Nothing = Left "Failed to parse message"
 
 getUserInfo = Telegram.extractUpdateMessage >=> messageFrom

@@ -21,6 +21,7 @@ dependencies:
 - parsec
 - regex-compat
 - either
+- containers
 
 library:
   source-dirs: src

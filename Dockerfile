@@ -12,7 +12,3 @@ ADD ./stack.yaml /app/stack.yaml
 ADD ./stack.yaml.lock /app/stack.yaml.lock
 ADD ./package.yaml /app/package.yaml
 RUN stack build --only-dependencies
-
-ADD ./app /app/app
-ADD ./src /app/src
-RUN stack build

@@ -18,7 +18,7 @@ services:
   main:
     dns: 8.8.8.8
     build: .
-    command: stack exec haskell-telegram-bot-exe
+    command: stack build --exec 'stack exec haskell-telegram-bot-exe'
     working_dir: /app
     environment:
       PG_HOST: postgres
@@ -31,6 +31,10 @@ services:
       - postgres
     networks:
       - haskell-telegram-bot
+    volumes:
+      - ./app:/app/app
+      - ./src:/app/src
+      - ./test:/app/test
   postgres:
     image: postgres
     environment:
