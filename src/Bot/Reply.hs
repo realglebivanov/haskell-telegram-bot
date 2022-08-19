@@ -44,13 +44,13 @@ send user (Result.Delete _key) = do
 send _user (Result.Create book) = pure Action.NoAction
 send _user (Result.Update book) = pure Action.NoAction
 
-simpleReply BotCommand.New _ = do
+simpleReply BotCommand.New BotState.New = do
   replyText "Enter book author"
   pure Action.NoAction
 simpleReply (BotCommand.TextInput _) (BotState.NewAuthorName _) = do
   replyText "Enter book title"
   pure Action.NoAction
-simpleReply (BotCommand.Edit _) _ = do
+simpleReply (BotCommand.Edit _) (BotState.Edit _) = do
   replyText "Enter new book author"
   pure Action.NoAction
 simpleReply (BotCommand.TextInput _) (BotState.EditAuthorName _ _) = do

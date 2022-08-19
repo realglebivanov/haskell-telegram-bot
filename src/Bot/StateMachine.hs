@@ -19,20 +19,21 @@ instance Show StateContainer where
 initialState = StateContainer M.empty
 
 transition (StateContainer states) User.User {User.id = userId} command =
-  updateState newState
+  updateState newUserState
   where
-    newState = transition' command state
-    state = M.lookup userId states
-    updateState (Just newState) = Just (StateContainer $ M.insert userId newState states, newState)
+    updateState (Just newUserState) =
+      Just (StateContainer (M.insert userId newUserState states), oldUserState, newUserState)
     updateState Nothing = Nothing
-    transition' command Nothing = transition' command (Just BotState.Idle)
-    transition' BotCommand.New (Just BotState.Idle) = Just BotState.New
-    transition' BotCommand.New (Just _state) = Nothing
-    transition' (BotCommand.Edit key) (Just BotState.Idle) = Just (BotState.Edit key)
-    transition' (BotCommand.Edit _key) (Just _state) = Nothing
-    transition' (BotCommand.TextInput text) (Just (BotState.Edit key)) = Just (BotState.EditAuthorName key text)
-    transition' (BotCommand.TextInput text) (Just BotState.New) = Just (BotState.NewAuthorName text)
-    transition' (BotCommand.TextInput _) (Just (BotState.EditAuthorName _ _)) = Just BotState.Idle
-    transition' (BotCommand.TextInput _) (Just (BotState.NewAuthorName _)) = Just BotState.Idle
-    transition' (BotCommand.TextInput _) _state = Nothing
-    transition' _command state@(Just _state) = state
+    newUserState = transition' command oldUserState
+    oldUserState = M.findWithDefault BotState.Idle userId states
+
+transition' BotCommand.New BotState.Idle = Just BotState.New
+transition' BotCommand.New _state = Nothing
+transition' (BotCommand.Edit key) BotState.Idle = Just (BotState.Edit key)
+transition' (BotCommand.Edit _key) _state = Nothing
+transition' (BotCommand.TextInput text) (BotState.Edit key) = Just (BotState.EditAuthorName key text)
+transition' (BotCommand.TextInput text) BotState.New = Just (BotState.NewAuthorName text)
+transition' (BotCommand.TextInput _) (BotState.EditAuthorName _ _) = Just BotState.Idle
+transition' (BotCommand.TextInput _) (BotState.NewAuthorName _) = Just BotState.Idle
+transition' (BotCommand.TextInput _) _state = Nothing
+transition' _command state = Just state

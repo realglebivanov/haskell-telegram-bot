@@ -19,5 +19,4 @@ instance Show Action where
   show (Command {command = New}) = "/new"
   show (Command {command = (TextInput text)}) = T.unpack text
   show NoAction = "/no_action"
-  show (InvalidCommand text) =
-    T.unpack . T.unlines $ ["/invalid_command@", text]
+  show (InvalidCommand text) = T.unpack $ "/invalid_command: " <> "\"" <> text <> "\""

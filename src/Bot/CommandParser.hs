@@ -9,17 +9,17 @@ import Database.Persist.Postgresql (toSqlKey)
 import Models.Book
 import qualified Models.BotCommand as BotCommand
 
-parseCommand text = buildCommand $ T.splitOn " " text
+parseCommand text = parseCommand' $ T.splitOn " " text
 
-buildCommand ["/list"] = Right BotCommand.List
-buildCommand ["/new"] = Right BotCommand.New
-buildCommand ["/edit", id] = BotCommand.Edit <$> buildKey id
-buildCommand ["/show", id] = BotCommand.Show <$> buildKey id
-buildCommand ["/delete", id] = BotCommand.Delete <$> buildKey id
-buildCommand text = Right . BotCommand.TextInput . T.intercalate " " $ text
+parseCommand' ["/list"] = Right BotCommand.List
+parseCommand' ["/new"] = Right BotCommand.New
+parseCommand' ["/edit", id] = BotCommand.Edit <$> parseKey id
+parseCommand' ["/show", id] = BotCommand.Show <$> parseKey id
+parseCommand' ["/delete", id] = BotCommand.Delete <$> parseKey id
+parseCommand' text = Right . BotCommand.TextInput . T.intercalate " " $ text
 
-buildKey :: T.Text -> Either T.Text (Key Book)
-buildKey id = extractId $ decimal id
+parseKey :: T.Text -> Either T.Text (Key Book)
+parseKey id = extractId $ decimal id
   where
     extractId (Right (id, "")) = Right $ toSqlKey id
     extractId _ = Left $ "Failed to parse id " <> id
